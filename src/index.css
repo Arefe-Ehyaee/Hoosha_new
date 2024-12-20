@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    font-family: 'KalamehRegular';
+}
+
+/* nav::before {
+    content: '';
+    height: 876px;
+    width: 904px;
+    background-image: radial-gradient(#008b8b 25%, #ace0f1 20%);
+    position: absolute;
+    filter: blur(94px);
+    opacity: 0.4;
+    right: 40px;
+    top: -118px;
+}
+ */

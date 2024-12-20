@@ -1,0 +1,24 @@
+@font-face {
+  font-family: 'myYekan';
+  src: url('./assets/Fonts/Yekan.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'myComforta';
+  src: url('./assets/Fonts/Comfortaa-Bold.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'KalamehRegular';
+  src: url('./assets/Fonts/Kalameh-Regular.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'KalamehBlack';
+  src: url('./assets/Fonts/Kalameh-Black.ttf') format("truetype");
+}
+
+@font-face {
+  font-family: 'KalamehBold';
+  src: url('./assets/Fonts/Kalameh-Bold.ttf') format("truetype");
+}
