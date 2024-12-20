@@ -1,64 +1,83 @@
 import ContactUs from "../ContactUs";
 import Navbar from "../Navbar";
 import send from "../../assets/Images/arrow.png";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 export default function ChatText() {
   const [enteredMessage, setEnteredMessage] = useState("");
   const [messages, setMessages] = useState<{ id: number; message: string; response: string; timestamp: string }[]>([]);
+  const wsRef = useRef<WebSocket | null>(null);
 
-    // Fetch messages from the database
-    // useEffect(() => {
-    //   fetch("/api/get-messages")
-    //     .then((response) => response.json())
-    //     .then((data) => setMessages(data))
-    //     .catch((err) => console.error("Failed to load messages:", err));
-    // }, []);
+  useEffect(() => {
+    // Initialize WebSocket connection
+    const ws = new WebSocket("ws://192.168.1.100:3000/ws");
+    wsRef.current = ws;
+
+    ws.onopen = () => {
+      console.log("WebSocket connection established!");
+    };
+
+    ws.onmessage = (event) => {
+      const data = event.data;
+      console.log("Received message:", data);
     
+      if (data) {
+        setMessages((prevMessages) =>
+          prevMessages.map((msg, index) =>
+            index === prevMessages.length - 1 && msg.response === "" // Update the last message's response
+              ? { ...msg, response: data }
+              : msg
+          )
+        );
+      }
+    };
+    
+
+    ws.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    ws.onclose = () => {
+      console.log("WebSocket connection closed.");
+    };
+
+    return () => {
+      // Clean up WebSocket connection on component unmount
+      if (wsRef.current) {
+        wsRef.current.close();
+      }
+    };
+  }, []);
+
   function handleSendMessage(event: React.ChangeEvent<HTMLInputElement>): void {
     setEnteredMessage(event.target.value);
   }
 
-
-  async function handleSubmit() {
-    if (enteredMessage.trim() !== "") {
+  function handleSubmit() {
+    if (enteredMessage.trim() !== "" && wsRef.current?.readyState === WebSocket.OPEN) {
       const message = enteredMessage;
-  
-      try {
-        // Send the message to the correct backend (running on port 32336)
-        const response = await fetch("https://192.168.1.100:443/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ user_message: message, user: "علیرضا" }),
-        });
-  
-        if (response.ok) {
-          const responseData: { response: string } = await response.json();
-          // If the response is successful, update the messages state
-          setMessages((prevMessages) => [
-            ...prevMessages,
-            // { id: Date.now(), message: message, timestamp: new Date().toISOString() },
-            { id: Date.now() , message: message, response:responseData.response, timestamp: new Date().toISOString() },
-          ]);
-          setEnteredMessage("");  // Clear the input field
-        } else {
-          const data = await response.json();
-          console.error("Error:", data.error || "Failed to send message");
-        }
-      } catch (err) {
-        console.error("Failed to send message:", err);
-      }
+      const msg = { type: "text", content: message };
+
+      // Send message via WebSocket
+      wsRef.current.send(JSON.stringify(msg));
+
+      // Update UI with the sent message
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        { id: Date.now(), message: message, response: "", timestamp: new Date().toISOString() },
+      ]);
+      setEnteredMessage(""); // Clear the input field
+    } else if (wsRef.current?.readyState !== WebSocket.OPEN) {
+      alert("WebSocket connection is not open.");
     }
   }
-  
-
 
   return (
     <div className="bg-[#dcf1f7]">
       <Navbar brandName={"Hoosha"}></Navbar>
-      <div className="bg-[#F9FAFF] py-[160px]">
+      <div className="bg-[#F9FAFF] py-[240px]">
         <div className="text-center mb-[50px] font-KalamehBold text-5xl text-[#0a1127]" dir="rtl">
-           هوشا اینجاست...
+          هوشا اینجاست...
         </div>
         <div className="relative text-center">
           <button className="absolute" onClick={handleSubmit}>
@@ -72,7 +91,7 @@ export default function ChatText() {
             value={enteredMessage}
             onChange={handleSendMessage}
             onKeyDown={(event) => {
-              if (event.key == "Enter") {
+              if (event.key === "Enter") {
                 handleSubmit();
               }
             }}
@@ -86,7 +105,7 @@ export default function ChatText() {
                   {msg.message} <br />
                   <small>{new Date(msg.timestamp).toLocaleString()}</small>
                 </div>
-                <div className="text-justify p-2 bg-yellow-200">{msg.response}</div>
+                {msg.response && <div className="text-justify p-2 bg-yellow-200">{msg.response}</div>}
               </div>
             ))}
           </div>

@@ -10,8 +10,6 @@ const Navbar = ({ brandName }: NavbarProps) => {
   const location = useLocation();
   // const [clickedButton, setClickedButton] = useState<string | null>(null);
 
-
-
   return (
     <nav
       className="lg:flex lg:w-full lg:justify-between font-bold text-[#0a1127] h-[67px]  md:px-[160px]"
@@ -40,24 +38,26 @@ const Navbar = ({ brandName }: NavbarProps) => {
         >
           <div className="">صفحه اصلی</div>
         </button>
+
         <button
           onClick={() => {
             navigate("/services");
           }}
           className={`${
-            location.pathname === "/why-hoosha"
+            location.pathname === "/services"
               ? "text-[#6ecccc] underline underline-offset-8"
               : ""
           }`}
         >
           <div className="">خدمات</div>
         </button>
+
         <button
           onClick={() => {
             navigate("/aboutUs");
           }}
           className={`${
-            location.pathname === "/aboutHoosha"
+            location.pathname === "/aboutUs"
               ? "text-[#6ecccc] underline underline-offset-8"
               : ""
           }`}
@@ -77,7 +77,6 @@ const Navbar = ({ brandName }: NavbarProps) => {
         >
           <div className="">چت</div>
         </button>
-
       </div>
 
       <div>
